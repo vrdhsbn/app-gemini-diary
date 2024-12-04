@@ -4,14 +4,17 @@ import type { DiaryEntry } from '@/app/types/DiaryEntry'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
 import { motion } from 'framer-motion'
+import { Trash2 } from 'lucide-react'
 import {} from 'react'
 import ReactMarkdown from 'react-markdown'
+import { Button } from './ui/button'
 
 interface DiaryEntriesProps {
   entries: DiaryEntry[]
+  onDeleteEntry: (id: string) => void
 }
 
-export default function DiaryEntries({ entries }: DiaryEntriesProps) {
+export default function DiaryEntries({ entries, onDeleteEntry }: DiaryEntriesProps) {
   return (
     <div className='space-y-6'>
       <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Your Entries</h2>
@@ -23,7 +26,7 @@ export default function DiaryEntries({ entries }: DiaryEntriesProps) {
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
           <Card className='shadow-md hover:shadow-lg transition-shadow duration-300'>
-            <CardHeader>
+            <CardHeader className='flex flex-row items-center justify-between'>
               <CardTitle className='text-xl font-medium text-gray-700'>
                 {new Date(entry.created_at).toLocaleString('ja-JP', {
                   // weekday: 'long',
@@ -34,6 +37,14 @@ export default function DiaryEntries({ entries }: DiaryEntriesProps) {
                   minute: 'numeric',
                 })}
               </CardTitle>
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={() => onDeleteEntry(entry.id)}
+                className='text-red-500 hover:text-red-700 hover:bg-red-100'
+              >
+                <Trash2 className='h-5 w-5' />
+              </Button>
             </CardHeader>
             <CardContent>
               <p className='text-gray-600 mb-4'>{entry.content}</p>

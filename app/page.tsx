@@ -4,6 +4,7 @@ import type { DiaryEntry } from '@/app/types/DiaryEntry'
 import DiaryEntries from '@/components/DiaryEntries'
 import DiaryForm from '@/components/DiaryForm'
 import FloatingActionButton from '@/components/FloatingActionButton'
+import { deleteDiaryEntry } from '@/lib/deleteDiaryEntry'
 import { getDiaryEntries } from '@/lib/getDiaryEntries'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BookMarked } from 'lucide-react'
@@ -23,8 +24,21 @@ export default function Home() {
     fetchEntries()
   }, [])
 
+  // 投稿の新規作成時にデータを取得し直す
   const handleNewEntry = () => {
     fetchEntries()
+  }
+
+  // 投稿の削除処理
+  const handleDeleteEntry = async (id: string) => {
+    if (window.confirm('投稿を削除します。よろしいですか？')) {
+      try {
+        await deleteDiaryEntry(id)
+        await fetchEntries()
+      } catch (error) {
+        console.error('Error deleting entry:', error)
+      }
+    }
   }
 
   return (
@@ -49,7 +63,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <DiaryEntries entries={entries} />
+      <DiaryEntries entries={entries} onDeleteEntry={handleDeleteEntry} />
 
       <FloatingActionButton onClick={() => setShowForm(!showForm)} />
     </div>
