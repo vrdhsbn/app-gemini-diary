@@ -5,16 +5,48 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
 import { motion } from 'framer-motion'
 import { Trash2 } from 'lucide-react'
-import {} from 'react'
+import { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from './ui/button'
 
 interface DiaryEntriesProps {
   entries: DiaryEntry[]
   onDeleteEntry: (id: string) => void
+  onLoadMore: () => void
+  hasMore: boolean
+  isLoading: boolean
 }
 
-export default function DiaryEntries({ entries, onDeleteEntry }: DiaryEntriesProps) {
+export default function DiaryEntries({
+  entries,
+  onDeleteEntry,
+  onLoadMore,
+  hasMore,
+  isLoading,
+}: DiaryEntriesProps) {
+  const observerTarget = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          onLoadMore()
+        }
+      },
+      { threshold: 1.0 },
+    )
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current)
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current)
+      }
+    }
+  }, [onLoadMore, hasMore, isLoading])
+
   return (
     <div className='space-y-6'>
       <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Your Entries</h2>
@@ -71,6 +103,17 @@ export default function DiaryEntries({ entries, onDeleteEntry }: DiaryEntriesPro
           </Card>
         </motion.div>
       ))}
+      {isLoading && (
+        <div className='text-center'>
+          <p className='text-gray-600'>Loading more entries...</p>
+        </div>
+      )}
+      {!isLoading && hasMore && <div ref={observerTarget} className='h-10' />}
+      {!hasMore && (
+        <div className='text-center'>
+          <p className='text-gray-600'>No more entries to load.</p>
+        </div>
+      )}
     </div>
   )
 }
