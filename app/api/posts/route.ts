@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   // console.log(`プロンプト： ${prompt}`)
 
   const result = await generateText({
-    model: google('gemini-1.5-flash'),
+    model: google('gemini-2.0-flash-exp'),
     prompt: prompt,
   })
 
